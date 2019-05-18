@@ -12,7 +12,7 @@ class Word():
     def __init__(self, word):
         self.word = word
     def __str__(self):
-        return word;
+        return self.word;
 
 class Corpus():
     """docstring for corpus."""
@@ -71,23 +71,33 @@ def parse(xml_file):
 
     return all
 
+def get_text_by_key(corpus):
+    db = defaultdict(lambda: []) # all texts defined by keys
+    for text in all_corpus:
+        db[text.key] += [text]
 
-file_list = get_file_list()
-all_corpus = []
-for xml_file in file_list:
-    all_corpus += parse(xml_file)
+def get_all_corpus():
+    file_list = get_file_list()
+    all_corpus = []
+    for xml_file in file_list:
+        all_corpus += parse(xml_file)
+        return all_corpus
 
-db = defaultdict(lambda: []) # all texts defined by keys
-for i in all_corpus:
-    db[i.key] = i
+all_corpus = get_all_corpus()
+db = get_text_by_key(all_corpus)
 
 word_list = {}
 for corpus in all_corpus:
     for word in corpus.text.split(" "):
+            if word == " ": continue
+            if word not in word_list.keys(): # make new Word and add it to word_list
+                new_word = Word(word)
+                word_list[word] = new_word
+            print("word:"+word + " key is: " , corpus.key)
+            word_list[word].tekrar[corpus.key]+=1
 
-        if word not in word_list.keys(): # make new Word and add ti word_list
-            new_word = Word(word)
-            word_list[word] = new_word
-            print(new_word, " made")
-        word_list[word]
-        word_list[word].tekrar[corpus.key]+=1
+for word in word_list.values():
+    print("لغت: ",word.word)
+    for key in word.tekrar.keys():
+        print(key+":",word.tekrar[key]);
+    print("-"*10 + "\n\n")
