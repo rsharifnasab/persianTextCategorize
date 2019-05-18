@@ -8,10 +8,11 @@ class Word():
     """docstring for Word."""
 
     word = ""
-    #keys =
-
+    tekrar = defaultdict(lambda: 0)
     def __init__(self, word):
         self.word = word
+    def __str__(self):
+        return word;
 
 class Corpus():
     """docstring for corpus."""
@@ -25,6 +26,8 @@ class Corpus():
         self.title = title.replace('\n','');
         self.text = text.replace('\n','');
         self.__clear_key__()
+        self.__clear_text__()
+
 
     def __clear_key__(self):
         try:
@@ -32,6 +35,12 @@ class Corpus():
             self.key = self.key[:dot_index]
         except:
             pass
+
+    def __clear_text__(self):
+        bad_chars = ["،",".",";",":",'"',"'"]
+        for char in bad_chars:
+            self.text = self.text.replace(char,'')
+
 
     def __str__(self):
         ans = "\nkey = " + self.key + ",\n title = " + self.title + ",\n text = " + self.text[:100]
@@ -68,8 +77,17 @@ all_corpus = []
 for xml_file in file_list:
     all_corpus += parse(xml_file)
 
-db = defaultdict(lambda: [])
+db = defaultdict(lambda: []) # all texts defined by keys
 for i in all_corpus:
     db[i.key] = i
-for key in db.keys():
-    print(key)
+
+word_list = {}
+for corpus in all_corpus:
+    for word in corpus.text.split(" "):
+
+        if word not in word_list.keys(): # make new Word and add ti word_list
+            new_word = Word(word)
+            word_list[word] = new_word
+            print(new_word, " made")
+        word_list[word]
+        word_list[word].tekrar[corpus.key]+=1
