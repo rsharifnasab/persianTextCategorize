@@ -1,4 +1,4 @@
-import os
+import os,sys
 from bs4 import BeautifulSoup
 from collections import defaultdict
 import pickle
@@ -102,6 +102,7 @@ def get_text_by_key(corpus):
     db = defaultdict(lambda: []) # all texts defined by keys
     for text in all_corpus:
         db[text.key] += [text]
+    return db
 
 def get_all_corpus():
     file_list = get_file_list()
@@ -144,6 +145,8 @@ for word in word_list.values():
     print("----\n")
 print("len = ",len(word_list.values()))
 
-
 save_word_list(word_list)
+
+print("size of all_corpus:",sys.getsizeof(all_corpus))
+print("size of db:",sys.getsizeof(db.values()))
 #wl2 = load_word_list()
