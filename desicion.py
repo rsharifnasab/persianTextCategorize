@@ -56,15 +56,50 @@ class Corpus():
         return ans;
 
 def get_new_text_from_user():
-    address = input("please enter path of your file : ")
+    address = input("please enter path of your file : \n")
     text = open(address,"r")
     text = text.read()
     return text
 
+def clear_word(text):
+    bad_chars = ["،",".",";",":",'"',"'"]
+    for char in bad_chars:
+        text = text.replace(char,'')
+    return text
+
+def make_guess(new_text,word_list):
+    guess = {}
+    for word in new_text.split(" "):
+        if word not in word_list: continue
+        for key in word_list[word].tekrar.keys():
+            if key not in guess.keys(): guess[key] = 0
+            guess[key] += word_list[word].tekrar[key]
+    return guess
+
+def count_all(word_list):
+    db = {}
+    for word in word_list.keys(): #every word
+        for key in word_list[word].tekrar.keys(): #every topic
+            if key not in db.keys(): db[key] = 0
+            db[key]+=1
+    return db
+
 #main program
 word_list = load_word_list()
 new_text = get_new_text_from_user()
+new_text = clear_word(new_text)
+all = count_all(word_list)
+guess = make_guess(new_text,word_list)
 
-for value in word_list.values():
-    print(value,value.tekrar)
-print("\n\n\nyour test was:\n",new_text)
+normalized = {}
+for key in guess.keys():
+    normalized[key] = guess[key]/all[key]*100
+tedad_kol = sum(normalized.values())
+
+ans = {}
+for key in normalized.keys():
+    ans[key] = normalized[key]/tedad_kol * 100
+sorted_ans =  sorted(ans, key=ans.__getitem__)
+print()
+for key in sorted_ans[::-1]:
+    print(key , " : " , ans[key] , "%")
