@@ -1,8 +1,25 @@
 import os
 from bs4 import BeautifulSoup
 from collections import defaultdict
-
+import pickle
 pre_add = "./tmp"
+
+
+def save_obj(obj, name):
+    with open('obj/'+ name + '.db', 'wb') as f:
+        pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+def load_obj(name):
+    with open('obj/' + name + '.db', 'rb') as f:
+        return pickle.load(f)
+
+
+def save_word_list(obj):
+    save_obj(obj,"words.db")
+
+def load_word_list():
+    return load_obj("words.db")
+
 
 class Word():
     """docstring for Word."""
@@ -96,8 +113,13 @@ for corpus in all_corpus:
             print("word:"+word + " key is: " , corpus.key)
             word_list[word].tekrar[corpus.key]+=1
 
+
 for word in word_list.values():
     print("لغت: ",word.word)
     for key in word.tekrar.keys():
         print(key+":",word.tekrar[key]);
     print("-"*10 + "\n\n")
+
+save_word_list(word_list)
+wl2 = load_word_list()
+print(wl2)
