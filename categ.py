@@ -3,7 +3,16 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 import pickle
 pre_add = "./tmp"
+pre_add = "./corpus"
+junk_words = [" ","ز","بود","که","و","هاي","ها","مثل","شود","این","آن","ان","همین","بود","نیست","شد","کرد"]
+junk_chars = ["(",")","1","2","3","4","5","6","7","8","9","0"]
+def is_not_valid_word(word):
+    if word in junk_words: return True
+    if len(word) < 4: return  True
+    for junk_char in junk_chars:
+        if junk_char in word: return True
 
+    return False
 
 def save_obj(obj, name):
     with open('obj/'+ name + '.db', 'wb') as f:
@@ -15,25 +24,25 @@ def load_obj(name):
 
 
 def save_word_list(obj):
-    save_obj(obj,"words.db")
+    save_obj(obj,"words")
 
 def load_word_list():
-    return load_obj("words.db")
+    return load_obj("words")
 
 
 class Word():
     """docstring for Word."""
 
     word = ""
-    tekrar = defaultdict(lambda: 0)
+    tekrar = None
     def __init__(self, word):
         self.word = word
+        self.tekrar = {} #defaultdict(lambda: 0)
     def __str__(self):
         return self.word;
 
 class Corpus():
     """docstring for corpus."""
-
     key = ""
     title = ""
     text = ""
@@ -69,6 +78,7 @@ def get_file_list():
     xml_files = []
     for f in input_files :
         if ".xml" in f: xml_files.append(f)
+    print(" count if files:" ,len(xml_files))
     return xml_files
 
 def parse(xml_file):
@@ -100,26 +110,40 @@ def get_all_corpus():
         all_corpus += parse(xml_file)
         return all_corpus
 
-all_corpus = get_all_corpus()
-db = get_text_by_key(all_corpus)
-
-word_list = {}
-for corpus in all_corpus:
-    for word in corpus.text.split(" "):
-            if word == " ": continue
+def make_word_list(all_corpus):
+    word_list = {}
+    for corpus in all_corpus:
+        for word in corpus.text.split(" "):
+            if is_not_valid_word(word): continue
             if word not in word_list.keys(): # make new Word and add it to word_list
                 new_word = Word(word)
                 word_list[word] = new_word
-            print("word:"+word + " key is: " , corpus.key)
+        #print("word:"+word + " key is: " , corpus.key)
+            if corpus.key not in word_list[word].tekrar.keys():
+                    word_list[word].tekrar[corpus.key] = 0
             word_list[word].tekrar[corpus.key]+=1
+    return word_list
 
+def is_word_frequent(word):
+    return True # TODO
+    if sum(word.tekrar.values()) < 3: return False
+    return True
+def clean_word_list(word_list):
+    word_list = {key: value for key, value in word_list.items() if is_word_frequent(value)}
+    return word_list
 
+#main program
+all_corpus = get_all_corpus()
+db = get_text_by_key(all_corpus)
+word_list = make_word_list(all_corpus)
+word_list = clean_word_list(word_list)
 for word in word_list.values():
     print("لغت: ",word.word)
     for key in word.tekrar.keys():
         print(key+":",word.tekrar[key]);
-    print("-"*10 + "\n\n")
+    print("----\n")
+print("len = ",len(word_list.values()))
+
 
 save_word_list(word_list)
-wl2 = load_word_list()
-print(wl2)
+#wl2 = load_word_list()
