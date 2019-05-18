@@ -1,0 +1,4 @@
+a program for machine learning by python
+at first it create a dataset file from corpus in obj/words.db with categ.py
+next, for each new text, use decision program and it will list possible categories
+

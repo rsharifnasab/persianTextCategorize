@@ -1,0 +1,7 @@
+*.zip
+*.xml
+./"original files"
+./tmp/
+*.txt
+*.dtd
+hamshahri.dtd
